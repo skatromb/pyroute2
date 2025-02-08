@@ -11,6 +11,7 @@ import sys
 import threading
 import time
 import types
+from typing_extensions import Self
 
 basestring = (str, bytes)
 file = io.BytesIO
@@ -71,13 +72,17 @@ rate_suffixes = {
 # General purpose
 #
 class Namespace(object):
-    def __init__(self, parent, override=None):
+    def __init__(
+        self,
+        parent: Self,
+        override: Union[dict[str, Any], None] = None
+    ):
         self.parent = parent
         self.override = override or {}
 
-    def __getattr__(self, key):
+    def __getattr__(self, key: str) -> Union[str, types.MethodType]:
         if key in ('parent', 'override'):
-            return object.__getattr__(self, key)
+            return getattr(self, key)
         elif key in self.override:
             return self.override[key]
         else:
@@ -93,7 +98,7 @@ class Namespace(object):
                 ret = type(ret)(ret.__func__, self)
             return ret
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key: str, value: int):
         if key in ('parent', 'override'):
             object.__setattr__(self, key, value)
         elif key in self.override:

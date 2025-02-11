@@ -156,7 +156,11 @@ def map_namespace(
     return (by_name, by_value)
 
 
-def getbroadcast(addr, mask, family=socket.AF_INET):
+def getbroadcast(
+    addr: str,
+    mask: int,
+    family: socket.AddressFamily = socket.AF_INET
+) -> str:
     # 1. convert addr to int
     i = socket.inet_pton(family, addr)
     if family == socket.AF_INET:

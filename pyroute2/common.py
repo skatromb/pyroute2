@@ -464,8 +464,10 @@ def map_enoent(f: F) -> F:
     )(f)
 
 
-def metaclass(mc):
-    def wrapped(cls):
+T = TypeVar('T', bound=Callable[..., Any])
+
+def metaclass(mc: T) -> Callable[..., T]:
+    def wrapped(cls: T) -> T:
         nvars = {}
         skip = ['__dict__', '__weakref__']
         slots = cls.__dict__.get('__slots__')

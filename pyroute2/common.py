@@ -11,6 +11,7 @@ import threading
 import time
 import types
 from typing import Any, Callable, Literal, TextIO, TypeVar, Union
+
 from typing_extensions import Self
 
 basestring = (str, bytes)
@@ -73,9 +74,7 @@ rate_suffixes = {
 #
 class Namespace(object):
     def __init__(
-        self,
-        parent: Self,
-        override: Union[dict[str, Any], None] = None
+        self, parent: Self, override: Union[dict[str, Any], None] = None
     ):
         self.parent = parent
         self.override = override or {}
@@ -110,7 +109,7 @@ class Namespace(object):
 def map_namespace(
     prefix: str,
     ns: dict[str, Any],
-    normalize: Union[None, Literal[True], Callable[[str], str]] = None
+    normalize: Union[None, Literal[True], Callable[[str], str]] = None,
 ) -> tuple[dict[str, int], dict[int, str]]:
     '''
     Take the namespace prefix, list all constants and build two
@@ -144,7 +143,7 @@ def map_namespace(
     if normalize is None:
         transform = lambda x: x
     elif normalize is True:
-        transform = lambda x: x[len(prefix):].lower()
+        transform = lambda x: x[len(prefix) :].lower()
     elif isinstance(normalize, types.FunctionType):
         transform = normalize
     else:
@@ -156,9 +155,7 @@ def map_namespace(
 
 
 def getbroadcast(
-    addr: str,
-    mask: int,
-    family: socket.AddressFamily = socket.AF_INET
+    addr: str, mask: int, family: socket.AddressFamily = socket.AF_INET
 ) -> str:
     # 1. convert addr to int
     i = socket.inet_pton(family, addr)
@@ -213,8 +210,7 @@ def hexdump(payload: bytes, length: int = 0) -> str:
 
 
 def load_dump(
-    f: Union[str, TextIO],
-    meta: Union[dict[str, str], None] = None
+    f: Union[str, TextIO], meta: Union[dict[str, str], None] = None
 ) -> Union[bytes, str]:
     '''
     Load a packet dump from an open file-like object or a string.
@@ -298,7 +294,7 @@ class AddrPool(object):
         minaddr: int = 0xF,
         maxaddr: int = 0xFFFFFF,
         reverse: bool = False,
-        release: bool = False
+        release: bool = False,
     ):
         self.cell_size = 0  # in bits
         mx = self.cell
@@ -431,9 +427,9 @@ def uifname() -> str:
 
 F = TypeVar("F", bound=Callable[..., Any])
 
+
 def map_exception(
-    match: Callable[[Exception], bool],
-    subst: Callable[[Exception], Exception]
+    match: Callable[[Exception], bool], subst: Callable[[Exception], Exception]
 ) -> Callable[[F], F]:
     '''
     Decorator to map exception types
@@ -464,6 +460,7 @@ def map_enoent(f: F) -> F:
 
 
 T = TypeVar('T', bound=Callable[..., Any])
+
 
 def metaclass(mc: T) -> Callable[..., T]:
     def wrapped(cls: T) -> T:

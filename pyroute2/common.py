@@ -11,6 +11,7 @@ import sys
 import threading
 import time
 import types
+from typing import Any, Callable, Literal, Union
 from typing_extensions import Self
 
 basestring = (str, bytes)
@@ -107,7 +108,11 @@ class Namespace(object):
             setattr(self.parent, key, value)
 
 
-def map_namespace(prefix, ns, normalize=None):
+def map_namespace(
+    prefix: str,
+    ns: dict[str, Any],
+    normalize: Union[None, Literal[True], Callable[[str], str]] = None
+) -> tuple[dict[str, int], dict[int, str]]:
     '''
     Take the namespace prefix, list all constants and build two
     dictionaries -- straight and reverse mappings. E.g.:
@@ -135,17 +140,19 @@ def map_namespace(prefix, ns, normalize=None):
         - True — cut the prefix and `lower()` the rest
         - lambda x: … — apply the function to every name
     '''
-    nmap = {None: lambda x: x, True: lambda x: x[len(prefix) :].lower()}
+    transform: Callable[[str], str]
 
-    if not isinstance(normalize, types.FunctionType):
-        normalize = nmap[normalize]
+    if normalize is None:
+        transform = lambda x: x
+    elif normalize is True:
+        transform = lambda x: x[len(prefix):].lower()
+    elif isinstance(normalize, types.FunctionType):
+        transform = normalize
+    else:
+        raise ValueError("Invalid value for `normalize` parameter")
 
-    by_name = dict(
-        [(normalize(i), ns[i]) for i in ns.keys() if i.startswith(prefix)]
-    )
-    by_value = dict(
-        [(ns[i], normalize(i)) for i in ns.keys() if i.startswith(prefix)]
-    )
+    by_name = {transform(i): ns[i] for i in ns.keys() if i.startswith(prefix)}
+    by_value = {ns[i]: transform(i) for i in ns.keys() if i.startswith(prefix)}
     return (by_name, by_value)
 
 

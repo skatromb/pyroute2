@@ -11,7 +11,7 @@ import sys
 import threading
 import time
 import types
-from typing import Any, Callable, Literal, Union
+from typing import Any, Callable, Literal, TextIO, Union
 from typing_extensions import Self
 
 basestring = (str, bytes)
@@ -213,7 +213,10 @@ def hexdump(payload: bytes, length: int = 0) -> str:
     return ':'.join('{0:02x}'.format(c) for c in payload[:length] or payload)
 
 
-def load_dump(f, meta=None):
+def load_dump(
+    f: Union[str, TextIO],
+    meta: Union[dict[str, str], None] = None
+) -> Union[bytes, str]:
     '''
     Load a packet dump from an open file-like object or a string.
 
@@ -278,13 +281,10 @@ def load_dump(f, meta=None):
     if isinstance(meta, dict):
         if code is not None:
             meta['code'] = code
-        if meta_data is not None:
+        if meta_data is not None and meta_label is not None:
             meta[meta_label] = meta_data
 
-    if sys.version[0] == '3':
-        return bytes(data, 'iso8859-1')
-    else:
-        return data
+    return bytes(data, 'iso8859-1')
 
 
 class AddrPool(object):
